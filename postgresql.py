@@ -132,12 +132,12 @@ class PostgreSqlHandle:
 if __name__=='__main__':
     # Usage
     db_handle = PostgreSqlHandle(
-        db_name='fulcrum',
-        username='postgres',
-        password='3rikkv@le',
+        db_name='somedb',
+        username='erik',
+        password='password',
         hostname='localhost'
     )
-    db_handle.copy_from(r'C:\Users\eirik\Desktop\sammmy.csv', 'sam_3d', direction='to_csv')
+    db_handle.csv_bulk_copy(r'C:\Users\eirik\Desktop\sammmy.csv', 'sam_3d', direction='to_sql')
 
 
 
