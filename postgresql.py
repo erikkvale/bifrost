@@ -62,7 +62,6 @@ class PostgreSqlHandle:
         try:
             conn = self.engine.connect()
             conn.close()
-            print("Test connection was successful, test connection closed.")
         except:
             raise
 
