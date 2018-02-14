@@ -4,6 +4,7 @@ This module contains the
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from psycopg2 import sql
 
 
 class PostgreSqlHandle:
@@ -12,7 +13,8 @@ class PostgreSqlHandle:
                  password, hostname, port=5432):
         """
         Initializes SQLAlchemy engine, using psycopg2 as the DBAPI
-        http://docs.sqlalchemy.org/en/latest/dialects/postgresql.html#dialect-postgresql-psycopg2-connect
+        (http://docs.sqlalchemy.org/en/latest/dialects/postgresql.
+        html#dialect-postgresql-psycopg2-connect)
 
         Parameters
         ----------
@@ -40,6 +42,7 @@ class PostgreSqlHandle:
             with the current engine bound, so new instances of
             the Session() class can be constructed if needed using
             the current connection.
+            #http://docs.sqlalchemy.org/en/latest/orm/session_basics.html#session-basics
         """
 
         self.conn_str = 'postgresql+psycopg2://{0}:{1}@{2}:{3}/{4}'.format(
@@ -50,7 +53,6 @@ class PostgreSqlHandle:
             db_name
         )
         self.engine = create_engine(self.conn_str)
-        self.Session = sessionmaker(bind=self.engine)
 
         # Check that the database connection works
         # during instantiation, before getting a
@@ -60,66 +62,83 @@ class PostgreSqlHandle:
         try:
             conn = self.engine.connect()
             conn.close()
+            print("Test connection was successful, test connection closed.")
         except:
             raise
 
+        # create a configured "Session" class
+        self.Session = sessionmaker(bind=self.engine)
 
-    def bulk_copy(self, csv_file_path, sql_schema,
-                  sql_table, local_to_remote=False):
+    def csv_bulk_copy(self, file, table, direction='to_sql'):
         """
         Attempts to load a CSV file into a destination SQL table
         using the PostgreSQL native COPY functionality, which is
         an optimized way of loading large data sets.
-        https://www.postgresql.org/docs/current/static/sql-copy.html
 
         Notes
         -----
-        Assumes the CSV file has a header and the destination SQL
-        tables already exist, so the header of the CSV is skipped.
+        Assumes the CSV file has a header both ways and
+        the destination SQL tables already exist.
 
         Parameters
         ----------
-        csv_file_path : str
-            The file path for the CSV file to load
-        sql_schema : str
-            The SQL schema/namespace of the SQL table
-            to load the CSV file into
-        sql_table : str
-            The name of the SQL table to load the CSV file
-            into
-        local_to_remote : bool
-            Default False, uses the COPY method, if True,
-            then uses copy_expert of pyscopg2 to alter
+        file :
+        table :
+        direction :
+
         Returns
         -------
 
         """
 
+        # Set the raw connection and create cursor
+        # for underlying DB-API
+        # http://docs.sqlalchemy.org/en/latest/core/connections.html#working-with-raw-dbapi-connections
         dbapi_conn = self.engine.raw_connection()
-        cursor = dbapi_conn.cursor()
+        cur = dbapi_conn.cursor()
+
+        # Default mode, will re-assign explicitly depending on direction
+        file_mode = None
+
+        # Use psycopg2 sql module for correct parameter injection.
+        table_composable = sql.Identifier(table)
+
+        # Set sql query string and file mode, both depending on direction
+        if direction == 'to_sql':
+            query = (sql.SQL("COPY {} FROM STDIN WITH CSV HEADER;").
+                     format(table_composable))
+            file_mode = 'r'
+        elif direction == 'to_csv':
+            query = (sql.SQL("COPY {} TO STDOUT WITH CSV HEADER;").
+                     format(table_composable))
+            file_mode = 'w'
+        else:
+            raise ValueError(
+                "{} is not a valid direction. Use"
+                "either 'to_sql' or 'to_csv'".format(
+                direction
+            ))
 
         try:
-            if not local_to_remote:
-                sql = "COPY %s.%s FROM %s WITH CSV HEADER"
-                cursor.execute(sql, (sql_schema, sql_table, csv_file_path))
-                dbapi_conn.commit()
-            else:
-                sql = "COPY %s.%s FROM STDIN WITH CSV HEADER"
-                with open(csv_file_path) as file:
-                    cursor.copy_expert(sql, file)
-                dbapi_conn.commit()
+            with open(file, mode=file_mode) as f:
+                cur.copy_expert(sql=query, file=f)
+                if direction == 'to_sql':
+                    dbapi_conn.commit()
         except:
-            raise Exception
+            raise
         finally:
-            cursor.close()
-        return None
-
-
+            cur.close()
 
 
 if __name__=='__main__':
-    pass
-
+    # Usage
+    db_handle = PostgreSqlHandle(
+        db_name='fulcrum',
+        username='postgres',
+        password='3rikkv@le',
+        hostname='localhost'
+    )
+    db_handle.copy_from(r'C:\Users\eirik\Desktop\sammmy.csv', 'sam_3d', direction='to_csv')
 
 
 
