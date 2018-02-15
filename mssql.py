@@ -1,5 +1,6 @@
 """
-Connecting to MS SQL Server
+This module contains the attributes necessary to
+interact with a MS SQL Server database and its data
 """
 
 from sqlalchemy import create_engine
@@ -7,24 +8,24 @@ from urllib import parse
 from sqlalchemy.orm import sessionmaker
 
 
-
 class MSSqlHandle:
-    """
-    Handler to an MS SQL Server database and its contents
-    """
 
     def __init__(self, driver_name, host_name,
                  db_name, trusted_connection='yes', uid=None,
                  pwd=None):
         """
+        Handler to an MS SQL Server database and its contents
         Initializes SQLAlchemy engine, using pyodbc as the DBAPI and the connection dictionary provided
 
-        :param driver_name: <str> Ex: 'SQL Server Native Client 11.0''
-        :param host_name: <str> Ex: 'ORION\TARS' <host>\<SQL Server instance>
-        :param db_name: <str>
-        :param trusted_connection: <bool> Uses Windows Authentication if true
-        :param uid: Not Implemented
-        :param pwd: Not Implemented
+        Parameters
+        ----------
+        driver_name :
+        host_name :
+        db_name :
+        trusted_connection :
+        uid :
+        pwd :
+
         """
         self.driver = driver_name
         self.server = host_name
@@ -45,6 +46,13 @@ class MSSqlHandle:
 
 
     def _to_url(self):
+        """
+        Used to properly format the connection URL
+
+        Returns
+        -------
+
+        """
         connection_string = ("DRIVER={0};"
                              "SERVER={1};"
                              "DATABASE={2};"
@@ -59,17 +67,17 @@ class MSSqlHandle:
     def bulk_insert(self, csv_file_path, sql_schema_and_table,
                     field_terminator=',', row_terminator='\\n'):
         """
-        https://docs.microsoft.com/en-us/sql/t-sql/statements/bulk-insert-transact-sql
 
-        EXAMPLE:
+        Parameters
+        ----------
+        csv_file_path :
+        sql_schema_and_table :
+        field_terminator :
+        row_terminator :
 
-        MSSqlHandle.bulk_insert(self,
-                    csv_file_path=r'C:\mycsv.csv',
-                    sql_schema_name='dbo.mytable'
-                    field_terminator=',',
-                    row_terminator='\\n'
-                    )
-        ****Default skips header row****
+        Returns
+        -------
+
         """
         sql = ("BULK INSERT {0}\n"
                "FROM '{1}'\n"

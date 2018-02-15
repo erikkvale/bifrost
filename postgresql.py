@@ -1,5 +1,6 @@
 """
-This module contains the
+This module contains the attributes necessary to
+interact with a PostgreSQL database and its data
 """
 
 from sqlalchemy import create_engine

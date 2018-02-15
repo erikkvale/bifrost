@@ -17,17 +17,22 @@ def load_csv(df, sql_db_handler, sql_schema_name,
     database while generating a temporary CSV file and leveraging
     the target SQL provider's bulk load utility.
 
-    :param df: <Pandas.Dataframe>
-    :param sql_db_handler: <SQL Database Handler object>
-    :param sql_schema_name: <str>
-    :param sql_table_name: <str>
-    :param local_to_remote: <bool>
-    :param header: <bool>
-    :param columns: <list>
-    :param write_index: <bool>
-    :param delimiter: <str>
-    :param newline: <str>
-    :return:
+    Parameters
+    ----------
+    df :
+    sql_db_handler :
+    sql_schema_name :
+    sql_table_name :
+    local_to_remote :
+    header :
+    columns :
+    write_index :
+    delimiter :
+    newline :
+
+    Returns
+    -------
+
     """
 
     #Build full table name
