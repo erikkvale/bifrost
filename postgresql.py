@@ -74,7 +74,7 @@ class PostgreSqlHandle:
         """
         Attempts to load the CSV data leveraging the PostgreSQL
         native COPY functionality, which is an optimized way of loading
-        large data sets. Relies on psycopg2's cursor.copy_expert()
+        large data sets from file. Relies on psycopg2's cursor.copy_expert()
         method for both local <--> local and  local <--> remote data
         flows.
 
