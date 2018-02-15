@@ -70,9 +70,13 @@ class PostgreSqlHandle:
 
     def csv_bulk_copy(self, file, table, direction='to_sql'):
         """
-        Attempts to load a CSV file into a destination SQL table
-        using the PostgreSQL native COPY functionality, which is
-        an optimized way of loading large data sets.
+        Attempts to load the CSV data leveraging the PostgreSQL
+        native COPY functionality, which is an optimized way of loading
+        large data sets. Relies on psycopg2's cursor.copy_expert()
+        method for both local <--> local and  local <--> remote data
+        flows.
+
+        http://initd.org/psycopg/docs/cursor.html#cursor.copy_expert
 
         Notes
         -----
@@ -81,7 +85,8 @@ class PostgreSqlHandle:
 
         Parameters
         ----------
-        file :
+        file : str
+
         table :
         direction :
 
@@ -137,7 +142,11 @@ if __name__=='__main__':
         password='password',
         hostname='localhost'
     )
-    db_handle.csv_bulk_copy(r'C:\Users\eirik\Desktop\sammmy.csv', 'sam_3d', direction='to_sql')
+    db_handle.csv_bulk_copy(
+        file=r'C:\Users\eirik\Desktop\sammmy.csv',
+        table='sam_3d',
+        direction='to_sql'
+    )
 
 
 
