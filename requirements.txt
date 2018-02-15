@@ -1,5 +1,6 @@
 numpy==1.14.0
 pandas==0.22.0
+psycopg2==2.7.4
 pyodbc==4.0.22
 python-dateutil==2.6.1
 pytz==2018.3

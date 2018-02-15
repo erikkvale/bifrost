@@ -43,6 +43,7 @@ class PostgreSqlHandle:
             the Session() class can be constructed if needed using
             the current connection.
             #http://docs.sqlalchemy.org/en/latest/orm/session_basics.html#session-basics
+
         """
 
         self.conn_str = 'postgresql+psycopg2://{0}:{1}@{2}:{3}/{4}'.format(
@@ -85,13 +86,18 @@ class PostgreSqlHandle:
 
         Parameters
         ----------
-        file : str
-
-        table :
-        direction :
-
+        file : file-like object or path (str)
+            Can be the CSV file to be loaded to sql or the
+            destination for a CSV file to be written to
+        table : str
+            The sql table name in which the data will be loaded
+            or written from
+        direction : {'to_sql', 'to_csv'} default 'to_sql'
+            Specifies whether to load to a sql table or write to
+            csv
         Returns
         -------
+        None
 
         """
 
@@ -132,7 +138,7 @@ class PostgreSqlHandle:
             raise
         finally:
             cur.close()
-
+        return None
 
 if __name__=='__main__':
     # Usage
