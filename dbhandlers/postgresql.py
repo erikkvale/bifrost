@@ -151,7 +151,7 @@ if __name__=='__main__':
     )
     db_handle.csv_bulk_copy(
         file=r'C:\Users\eirik\Desktop\sammmy.csv',
-        table='sam_3d',
+        table='employees',
         direction='to_sql'
     )
 
