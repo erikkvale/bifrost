@@ -1,14 +1,15 @@
 class Pipeline:
     """
     This class is a base implementation of a data pipeline
-    with linear dependencies. It is meant to assist in running a sequence
-    of functions in a linear manner, allowing the user of the class
-    to decorate their target functions and specify any dependent
-    functions in a more dynamic way. See examples below.
+    with linear dependencies. It is meant to assist in running
+    a sequence of functions in a linear and explicit manner,
+    allowing the user of the class to decorate their target
+    functions and specify any dependent functions in a more
+    dynamic way. See examples below.
 
     Notes
     -----
-    This is meant to mimic functional composition based on ordering
+    This is meant to mimic function composition based on ordering
     to minimize side effects, so the functions should be designed
     and understood in terms of linear execution prior to using this class.
 
@@ -31,6 +32,21 @@ class Pipeline:
     @pipeline.task(depends_on=second_task)
     def last_task(x):
         return x - 4
+
+    # Check the tasks instance variable to see tasks
+    # were added and ordered properly
+    print(pipeline.tasks)
+        [<function __main__.first_task>,
+        <function __main__.second_task>,
+        <function __main__.last_task>]
+
+    # Then run the tasks
+    pipeline_output = pipeline.run(20)
+
+    # Make assertion for equality based on alternate method
+    assert last_task(second_task(first_task(20))) == pipeline.run(20)
+    True
+
     """
 
     def __init__(self):
@@ -66,6 +82,8 @@ class Pipeline:
 
     def run(self, _input):
         """
+        The task runner method, function composition
+        behavior.
 
         Parameters
         ----------
@@ -75,7 +93,7 @@ class Pipeline:
 
         Returns
         -------
-
+        object
         """
         output = _input
         for task in self.tasks:
