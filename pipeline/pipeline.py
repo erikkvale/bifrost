@@ -88,7 +88,7 @@ class Pipeline:
         Parameters
         ----------
         _input : object
-            This is the initial input to kick off the pipeline exection,
+            This is the initial input to kick off the pipeline execution,
             i.e. the input for the root(first) task to be run in the pipeline.
 
         Returns
