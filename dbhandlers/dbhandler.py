@@ -30,6 +30,19 @@ class PostgreSqlHandle:
 
     def __init__(self, dbname, user,
                  password, host, port=5432):
+        """
+        This class is an extended wrapper around
+        psycopg2 as well as sqlalchemy to optimize
+        loading large datasets into postgres.
+
+        Parameters
+        ----------
+        dbname
+        user
+        password
+        host
+        port
+        """
         self.conn_dict = {
             'dbname': dbname,
             'user': user,
