@@ -40,11 +40,28 @@ class PostgreSqlHandle:
         # http://initd.org/psycopg/docs/connection.html#connection
         self.conn = psycopg2.connect(**self.conn_dict)
 
+    def __eq__(self, other):
+        return self.conn_dict == other
 
     def __repr__(self):
-        return ("PostgreSqlHandle("
-                "{dbname}, {user}, {password}, "
-                "{host}, {port})".format(**self.conn_dict))
+        return (
+            "{}('{dbname}', '{user}', '{password}', "
+            "'{host}', {port})".format(
+                self.__class__.__name__,
+                **self.conn_dict
+            )
+        )
 
     def __str__(self):
         pass
+
+
+if __name__=='__main__':
+    pg_handle = PostgreSqlHandle(
+        dbname='test_pg',
+        user='postgres',
+        password='Gunnar14',
+        host='localhost',
+        port=5432
+    )
+    print(repr(pg_handle))
