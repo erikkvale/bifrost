@@ -52,8 +52,9 @@ class PostgreSqlHandle:
 
     def __repr__(self):
         return (
-            "{}('{dbname}', '{user}', '{password}', "
-            "'{host}', {port})".format(
+            "{}('{dbname}', '{user}', "
+            "'{password}', '{host}', "
+            "{port})".format(
                 self.__class__.__name__,
                 **self._conn_dict
             )
