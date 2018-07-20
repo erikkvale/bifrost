@@ -1,7 +1,7 @@
 import unittest
 import psycopg2
 import psycopg2.extensions as pg_ext
-from .dbhandler import PostgreSqlHandle
+from dbhandlers.dbhandler import PostgreSqlHandle
 from collections import OrderedDict
 
 
