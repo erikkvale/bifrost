@@ -33,25 +33,29 @@ class PostgreSqlHandle:
         This class is an extended wrapper around
         psycopg2 as well as sqlalchemy to optimize
         loading large datasets into postgres.
+
+        Attributes
+        -----------
+
         """
-        self.conn_dict = {
+        self._conn_dict = {
             'dbname': dbname,
             'user': user,
             'password': password,
             'host': host,
             'port': port
         }
-        self.conn = psycopg2.connect(**self.conn_dict)
+        self.conn = psycopg2.connect(**self._conn_dict)
 
     def __eq__(self, other):
-        return self.conn_dict == other
+        return self._conn_dict == other
 
     def __repr__(self):
         return (
             "{}('{dbname}', '{user}', '{password}', "
             "'{host}', {port})".format(
                 self.__class__.__name__,
-                **self.conn_dict
+                **self._conn_dict
             )
         )
 
