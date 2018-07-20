@@ -4,6 +4,10 @@ import psycopg2.extensions as pg_ext
 from dbhandlers.dbhandler import PostgreSqlHandle
 from collections import OrderedDict
 
+# Global to determine what set of credentials to include
+# when using a test database. See setUp() of TestCase to
+# see use.
+_CLOUD_CI = False
 
 TEST_DB_NAME = 'test_pg'
 TEST_USER = 'postgres'
@@ -16,13 +20,22 @@ class TestPostgreSqlHandle(unittest.TestCase):
 
     def setUp(self):
 
-        self.pg_handle = PostgreSqlHandle(
-            dbname=TEST_DB_NAME,
-            user=TEST_USER,
-            password=TEST_PASSWORD,
-            host=TEST_HOST,
-            port=TEST_PORT
-        )
+        if _CLOUD_CI:
+            self.pg_handle = PostgreSqlHandle(
+                dbname=TEST_DB_NAME,
+                user=TEST_USER,
+                password=None,
+                host=None,
+                port=None
+            )
+        else:
+            self.pg_handle = PostgreSqlHandle(
+                dbname=TEST_DB_NAME,
+                user=TEST_USER,
+                password=TEST_PASSWORD,
+                host=TEST_HOST,
+                port=TEST_PORT
+            )
 
     def test_connection_status_is_ready(self):
         self.assertEqual(

@@ -45,7 +45,9 @@ class PostgreSqlHandle:
             'host': host,
             'port': port
         }
-        self.conn = psycopg2.connect(**self._conn_dict)
+        self.conn = psycopg2.connect(
+            **{k:v for k, v in self._conn_dict.items() if v is not None}
+        )
 
     def __eq__(self, other):
         return self._conn_dict == other
