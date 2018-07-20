@@ -22,6 +22,7 @@ leveraging of the target SQL database's native "bulk" load or insert functionali
 for CSV files seems to be the fastest method.
 """
 import psycopg2
+from collections import OrderedDict
 from sqlalchemy import create_engine
 
 
@@ -29,30 +30,21 @@ class PostgreSqlHandle:
 
     def __init__(self, dbname, user,
                  password, host, port=5432):
-
+        self.conn_dict = {
+            'dbname': dbname,
+            'user': user,
+            'password': password,
+            'host': host,
+            'port': port
+        }
         # http://initd.org/psycopg/docs/connection.html#connection
-        self.conn = psycopg2.connect(
-            dbname = dbname,
-            user=user,
-            password=password,
-            host=host,
-            port=port
-        )
+        self.conn = psycopg2.connect(**self.conn_dict)
 
 
     def __repr__(self):
-        return "PostgreSqlHandle({}, {}, {}, {}, {})".format(
-            **self.conn.get_dsn_parameters()
-        )
+        return ("PostgreSqlHandle("
+                "{dbname}, {user}, {password}, "
+                "{host}, {port})".format(**self.conn_dict))
 
     def __str__(self):
         pass
-
-
-if __name__=='__main__':
-    pg_sql_handle = PostgreSqlHandle(
-        dbname='test_pg',
-        user='postgres',
-        password='Gunnar14',
-        host='localhost'
-    )
