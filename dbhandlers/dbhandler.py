@@ -48,7 +48,7 @@ class PostgreSqlHandle:
         self.conn = psycopg2.connect(**self._conn_dict)
 
     def __eq__(self, other):
-        return self._conn_dict == other
+        return self.conn.dsn == other.conn.dsn
 
     def __repr__(self):
         return (
