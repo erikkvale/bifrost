@@ -2,7 +2,6 @@ import unittest
 import psycopg2
 import psycopg2.extensions as pg_ext
 from dbhandlers.dbhandler import PostgreSqlHandle
-from collections import OrderedDict
 
 
 TEST_DB_NAME = 'test_pg'
