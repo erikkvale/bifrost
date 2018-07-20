@@ -7,7 +7,7 @@ from collections import OrderedDict
 # Global to determine what set of credentials to include
 # when using a test database. See setUp() of TestCase to
 # see use.
-_CLOUD_CI = False
+_CLOUD_CI = True
 
 TEST_DB_NAME = 'test_pg'
 TEST_USER = 'postgres'
