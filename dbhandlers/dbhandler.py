@@ -22,7 +22,6 @@ leveraging of the target SQL database's native "bulk" load or insert functionali
 for CSV files seems to be the fastest method.
 """
 import psycopg2
-from collections import OrderedDict
 from sqlalchemy import create_engine
 
 
@@ -34,14 +33,6 @@ class PostgreSqlHandle:
         This class is an extended wrapper around
         psycopg2 as well as sqlalchemy to optimize
         loading large datasets into postgres.
-
-        Parameters
-        ----------
-        dbname
-        user
-        password
-        host
-        port
         """
         self.conn_dict = {
             'dbname': dbname,
