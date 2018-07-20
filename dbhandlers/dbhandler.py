@@ -59,7 +59,7 @@ class PostgreSqlHandle:
         pass
 
 
-if __name__=='__main__':
+if __name__ == '__main__':
     pg_handle = PostgreSqlHandle(
         dbname='test_pg',
         user='postgres',
