@@ -37,7 +37,6 @@ class PostgreSqlHandle:
             'host': host,
             'port': port
         }
-        # http://initd.org/psycopg/docs/connection.html#connection
         self.conn = psycopg2.connect(**self.conn_dict)
 
     def __eq__(self, other):
