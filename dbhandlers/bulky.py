@@ -5,7 +5,6 @@ SQL table -> CSV file -> DataFrame
 import os
 import time
 from tempfile import NamedTemporaryFile
-import psycopg2
 from psycopg2 import sql
 import sqlalchemy
 import pandas
@@ -88,17 +87,20 @@ if __name__ == '__main__':
         password='Gunnar14',
         host='localhost',
     )
+    start_df = time.time()
     df = pandas.DataFrame(
         data=numpy.random.randint(
             0, 100,
-            size=(10005, 4)),
+            size=(20536725, 2)),
         columns=['A', 'B', 'C', 'D']
     )
+    end_df = time.time()
+    print("Df ")
 
     print('-'*20)
 
     start = time.time()
-    result = pg_handler.dataframe_to_sql(df, 'test_pg')
+    result = pg_handler.dataframe_to_sql(df, 'test_data')
     end = time.time()
     elapsed_time = end - start
     print("psycopg2 copy_expert() time: {} Rows: {}".format(elapsed_time, result))
