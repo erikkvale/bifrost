@@ -57,7 +57,6 @@ class PostgreSqlHandler:
             os.unlink(temp_csv.name)
         return result
 
-
     def _to_sql(self, csv_file, table,
                 conn):
         cursor = conn.cursor()
@@ -72,7 +71,8 @@ class PostgreSqlHandler:
             cursor.statusmessage
         )
 
-    def _check_engine(self, engine):
+    @staticmethod
+    def _check_engine(engine):
         try:
             conn = engine.connect()
             conn.close()
@@ -91,7 +91,7 @@ if __name__ == '__main__':
     df = pandas.DataFrame(
         data=numpy.random.randint(
             0, 100,
-            size=(20536725, 2)),
+            size=(1097206, 4)),
         columns=['A', 'B', 'C', 'D']
     )
     end_df = time.time()
