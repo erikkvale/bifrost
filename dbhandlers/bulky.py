@@ -2,7 +2,8 @@
 A handler to a PostgreSQL database, wraps around SQLALchemy
 engine and leverages its raw DBAPI connection (psycopg2) to
 further leverage native bulk loading capabilities (CSV files) 
-to get around Pandas' DataFrame.to_sql() method, which blows. 
+to get around Pandas' DataFrame.to_sql() method, which is (generally)
+very slow. 
 Truly going native...
 This functionality might become an ABC for other SQL flavors down the road.
 """
