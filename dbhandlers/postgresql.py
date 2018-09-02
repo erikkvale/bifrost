@@ -15,15 +15,19 @@ class PostgresHandler(DbHandler):
         from the SQLAlchemy engine
         """
         engine = create_engine(self.conn_str)
-        try:
-            conn = engine.connect()
-            conn.close()
-        except Exception:
-            raise
-        return engine.raw_connection()
+        if self._check_connection(engine):
+            return engine.raw_connection()
 
     def read(self):
         pass
 
     def write(self):
         pass
+
+    def _check_connection(self, engine):
+        try:
+            conn = engine.connect()
+            conn.close()
+        except Exception:
+            raise
+        return True

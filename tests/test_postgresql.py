@@ -1,5 +1,6 @@
 import pytest
 from sqlalchemy.exc import ArgumentError, OperationalError
+from sqlalchemy.pool import _ConnectionFairy
 from ..dbhandlers.postgresql import PostgresHandler
 
 
@@ -27,4 +28,7 @@ class TestPostgresHandler:
 
     def test_db_connection_does_not_raise_error(self):
         self.pg_handler.connection
+
+    def test_db_connection_is_of_correct_type(self):
+        assert isinstance(self.pg_handler.connection, _ConnectionFairy)
 
