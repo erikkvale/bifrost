@@ -1,6 +1,5 @@
 import pytest
 from sqlalchemy.exc import ArgumentError, OperationalError
-import psycopg2
 from ..dbhandlers.postgresql import PostgresHandler
 
 
