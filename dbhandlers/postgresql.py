@@ -8,8 +8,19 @@ class PostgresHandler(DbHandler):
     def __init__(self, conn_str):
         super().__init__(conn_str)
 
+    @property
     def connection(self):
-        pass
+        """
+        Returns the underlying raw DBAPI connection
+        from the SQLAlchemy engine
+        """
+        engine = create_engine(self.conn_str)
+        try:
+            conn = engine.connect()
+            conn.close()
+        except Exception:
+            raise
+        return engine.raw_connection()
 
     def read(self):
         pass
