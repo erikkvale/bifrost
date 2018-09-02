@@ -18,6 +18,12 @@ class PostgresHandler(DbHandler):
         if self._check_connection(engine):
             return engine.raw_connection()
 
+    @property
+    def engine(self):
+        engine = create_engine(self.conn_str)
+        if self._check_connection(engine):
+            return engine
+
     def read(self):
         pass
 

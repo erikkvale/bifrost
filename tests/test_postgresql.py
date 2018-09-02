@@ -25,9 +25,12 @@ class TestPostgresHandler:
         with pytest.raises(OperationalError):
             bad_pass_pg_handle.connection
 
+        raise pytest.fail("Extract these tests and test _check_connection method with conn strings instead")
+
 
     def test_db_connection_does_not_raise_error(self):
         self.pg_handler.connection
+        raise pytest.fail("Extract these tests and test _check_connection method with conn strings instead")
 
     def test_db_connection_is_of_correct_type(self):
         assert isinstance(self.pg_handler.connection, _ConnectionFairy)
