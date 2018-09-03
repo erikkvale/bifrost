@@ -6,7 +6,7 @@ from sqlalchemy import create_engine
 class PostgresHandler(DbHandler):
 
     def __init__(self, conn_str):
-        super().__init__(conn_str)
+        self.conn_str = conn_str
 
     @property
     def connection(self):
