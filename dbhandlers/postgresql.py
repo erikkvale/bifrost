@@ -6,57 +6,80 @@ from psycopg2 import sql, DataError
 import io
 
 
-def initialize_engine(conn_str):
-    """
-    Creates, tests, and returns
-    a new SQLAlchemy engine object
-    """
-    engine = create_engine(conn_str)
-    try:
-        conn = engine.connect()
-        conn.close()
-    except Exception:
-        raise
-    return engine
+class SqlLoader:
+    """Loads a Pandas dataframe into a SQL database"""
+
+    def __init__(self, conn_str, dataframe,
+                 table_name, *csv_args, **csv_kwargs):
+        self.conn_str = conn_str
+        self.dataframe = dataframe
+        self.table_name = table_name
+
+    @property
+    def engine(self):
+        return self._initialize_engine(self.conn_str)
+
+    @property
+    def raw_connection(self):
+        return self.engine.raw_connection()
+
+    @property
+    def file_obj(self):
+        return self._convert_dataframe(self.dataframe)
+
+    @property
+    def sql_query(self):
+        return self._compose_sql_query(self.table_name)
+
+    def bulk_copy(self):
+        cursor = self.raw_connection.cursor()
+        cursor.copy_expert(
+            file=self.file_obj,
+            sql=self.sql_query
+        )
+        self.raw_connection.commit()
+        return None
 
 
-def convert_dataframe(dataframe, *args, **kwargs):
-    """
-    Converts dataframe to an in-memory text
-    object and returns said file-like object
-    """
-    csv_buffer = io.StringIO()
-    dataframe.to_csv(csv_buffer, *args, **kwargs)
-    csv_buffer.seek(0)
-    return csv_buffer
-
-def create_sql_table(dataframe, table_name, engine):
-    schema = get_schema(dataframe, table_name)
-    engine.execute(schema)
-    return None
-
-def build_sql_query(table_name):
-    """
-    Creates and returns the PostgreSQL-specific
-    SQL query as a Composable type, to safely
-    parametrize and format the query
-    """
-    table_composable = sql.Identifier(table_name)
-    return sql.SQL(
-        "COPY {} FROM STDIN WITH CSV HEADER;"
-    ).format(table_composable)
+    def _initialize_engine(self, conn_str):
+        """
+        Creates, tests, and returns
+        a new SQLAlchemy engine object
+        """
+        engine = create_engine(conn_str)
+        try:
+            conn = engine.connect()
+            conn.close()
+        except Exception:
+            raise
+        return engine
 
 
-def bulk_load(file, sql_query, engine):
-    raw_con = engine.raw_connection()
-    cursor = raw_con.cursor()
-    cursor.copy_expert(
-        file=file_obj,
-        sql=sql_query
-    )
-    raw_con.commit()
-    return None
+    def _convert_dataframe(self, dataframe, *args, **kwargs):
+        """
+        Converts dataframe to an in-memory text
+        object and returns said file-like object
+        """
+        csv_buffer = io.StringIO()
+        dataframe.to_csv(csv_buffer, *args, **kwargs)
+        csv_buffer.seek(0)
+        return csv_buffer
 
+    def create_sql_table(dataframe, table_name, engine):
+        schema = get_schema(dataframe, table_name)
+        engine.execute(schema)
+        return None
+
+    def _compose_sql_query(self, table_name):
+        """
+        Creates and returns the PostgreSQL-specific
+        SQL query as a Composable type, to safely
+        parametrize and format the query
+        """
+        table_composable = sql.Identifier(table_name)
+        return sql.SQL(
+            "COPY {} FROM STDIN WITH CSV HEADER;"
+        ).format(table_composable)
 
 if __name__ == '__main__':
     df = pandas.DataFrame(
@@ -67,17 +90,6 @@ if __name__ == '__main__':
     )
     conn_str = "postgresql+psycopg2://postgres:Gunnar14@localhost:5432/test"
     sql_table_name = "testing"
-
-    # Execution order
-    engine = initialize_engine(conn_str)
-    file_obj = convert_dataframe(df, index=False)
-    sql_query = build_sql_query(sql_table_name)
-
-    # Load data
-    try:
-        bulk_load(file_obj, sql_query, engine)
-    except DataError:
-        print(file_obj.getvalue())
 
 
 
