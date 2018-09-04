@@ -14,6 +14,8 @@ class SqlLoader:
         self.conn_str = conn_str
         self.dataframe = dataframe
         self.table_name = table_name
+        self.csv_args = csv_args
+        self.csv_kwargs = csv_kwargs
 
     @property
     def engine(self):
@@ -55,13 +57,13 @@ class SqlLoader:
         return engine
 
 
-    def _convert_dataframe(self, dataframe, *args, **kwargs):
+    def _convert_dataframe(self, dataframe):
         """
         Converts dataframe to an in-memory text
         object and returns said file-like object
         """
         csv_buffer = io.StringIO()
-        dataframe.to_csv(csv_buffer, *args, **kwargs)
+        dataframe.to_csv(csv_buffer, *self.csv_args, **self.csv_kwargs)
         csv_buffer.seek(0)
         return csv_buffer
 
@@ -90,6 +92,8 @@ if __name__ == '__main__':
     )
     conn_str = "postgresql+psycopg2://postgres:Gunnar14@localhost:5432/test"
     sql_table_name = "testing"
+    loader = SqlLoader(conn_str, df, sql_table_name, index=False)
+    loader.bulk_copy()
 
 
 
