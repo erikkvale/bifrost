@@ -30,10 +30,12 @@ def convert_dataframe(dataframe, *args, **kwargs):
     csv_buffer.seek(0)
     return csv_buffer
 
+
 def create_sql_table(dataframe, table_name, engine):
     schema = get_schema(dataframe, table_name)
     engine.execute(schema)
     return None
+
 
 def build_sql_query(table_name):
     """
