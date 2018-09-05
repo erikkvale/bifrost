@@ -9,6 +9,7 @@ def convert_dataframe(dataframe, *args, **kwargs):
     """Return in-memory string object"""
     csv_buffer = io.StringIO()
     dataframe.to_csv(csv_buffer, *args, **kwargs)
+    csv_buffer.seek(0)
     return csv_buffer
 
 
@@ -25,25 +26,24 @@ def initialize_engine(conn_str, *args, **kwargs):
 
 def create_table(engine, dataframe, table_name, schema=None):
     """Creates SQL table and schema if it exists"""
-    if not engine.has_table(engine, table_name, schema):
+    if not engine.dialect.has_table(engine, table_name, schema):
         sql_create = get_schema(dataframe, table_name)
-        metadata = MetaData(engine)
-        print("{} table created".format(table_name))
-        return None
+        with engine.connect() as conn:
+            conn.execute(sql_create)
+        print("'{}' table created".format(table_name))
     else:
-        print("{} table already exists".format(table_name))
+        print("'{}' table already exists".format(table_name))
+    return None
 
 
 def postgres_bulk_copy(engine, file_obj, table_name, schema=None):
     """Uses Postgres' copy_expert method to load file object as CSV"""
-    sql_query = sql.SQL("COPY {} FROM STDIN WITH CSV HEADER;")
-    sql_query = sql_query.format(sql.Identifier(table_name))
+    sql_query = sql.SQL("COPY {} FROM STDIN WITH CSV HEADER;").format(
+        sql.Identifier(table_name)
+    )
     raw_conn = engine.raw_connection()
     cursor = raw_conn.cursor()
-    cursor.copy_expert(
-        file=file_obj,
-        sql=sql_query
-    )
+    cursor.copy_expert(file=file_obj, sql=sql_query)
     raw_conn.commit()
     return (
         cursor.rowcount,
@@ -65,9 +65,8 @@ if __name__ == '__main__':
     file_obj = convert_dataframe(df, index=False)
     engine = initialize_engine(conn_str)
     create_table(engine, df, table_name)
-    rc, stat = postgres_bulk_copy(engine, file_obj, table_name)
-    print(rc)
-    print(stat)
+    rc, status = postgres_bulk_copy(engine, file_obj, table_name)
+    print(rc, status)
 
 
 
