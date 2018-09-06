@@ -1,16 +1,8 @@
 import pandas
 import io
-from sqlalchemy import create_engine, MetaData
+from sqlalchemy import create_engine
 from psycopg2 import sql
 from pandas.io.sql import get_schema
-
-
-def convert_dataframe(dataframe, *args, **kwargs):
-    """Return in-memory string object"""
-    csv_buffer = io.StringIO()
-    dataframe.to_csv(csv_buffer, *args, **kwargs)
-    csv_buffer.seek(0)
-    return csv_buffer
 
 
 def initialize_engine(conn_str, *args, **kwargs):
@@ -24,31 +16,58 @@ def initialize_engine(conn_str, *args, **kwargs):
     return engine
 
 
-def create_table(engine, dataframe, table_name, schema=None):
-    """Creates SQL table and schema if it exists"""
-    if not engine.dialect.has_table(engine, table_name, schema):
-        sql_create = get_schema(dataframe, table_name)
-        with engine.connect() as conn:
-            conn.execute(sql_create)
-        print("'{}' table created".format(table_name))
-    else:
-        print("'{}' table already exists".format(table_name))
-    return None
+class DataframeLoader:
+    """
+    Converts Pandas DataFrame to in-memory
+    CSV file and leverages PostgreSQL's bulk
+    copy method to load file into a SQL database
+    """
+    def __init__(self, dataframe, sqlalchemy_engine,
+                 sql_table, sql_schema, **csv_kwargs):
+        self.dataframe = dataframe
+        self.engine = sqlalchemy_engine
+        self.sql_schema = sql_schema
+        self.sql_table = sql_table
+        self.csv_kwargs = csv_kwargs
 
+    @property
+    def csv_file_obj(self):
+        return self.convert_dataframe()
 
-def postgres_bulk_copy(engine, file_obj, table_name, schema=None):
-    """Uses Postgres' copy_expert method to load file object as CSV"""
-    sql_query = sql.SQL("COPY {} FROM STDIN WITH CSV HEADER;").format(
-        sql.Identifier(table_name)
-    )
-    raw_conn = engine.raw_connection()
-    cursor = raw_conn.cursor()
-    cursor.copy_expert(file=file_obj, sql=sql_query)
-    raw_conn.commit()
-    return (
-        cursor.rowcount,
-        cursor.statusmessage
-    )
+    def convert_dataframe(self):
+        """Return in-memory string object"""
+        csv_buffer = io.StringIO()
+        self.dataframe.to_csv(csv_buffer, **self.csv_kwargs)
+        csv_buffer.seek(0)
+        return csv_buffer
+
+    def _table_exists(self):
+        """Inspects the database to see if the table exists"""
+        if self.engine.dialect.has_table(
+                self.engine, self.sql_table, schema=self.sql_schema):
+            return True
+        else:
+            return False
+
+    def _create_table(self):
+        """Creates the SQL table using the schema of the current DataFrame object"""
+        dataframe_schema = get_schema(self.dataframe, self.sql_table)
+        with self.engine.connect() as conn:
+            conn.execute(dataframe_schema)
+
+    def bulk_copy(self):
+        """Uses Postgres' copy_expert method to load file object as CSV"""
+        if not self._table_exists():
+            self._create_table()
+
+        sql_query = sql.SQL("COPY {} FROM STDIN WITH CSV HEADER;").format(
+            sql.Identifier(table_name)
+        )
+        raw_conn = self.engine.raw_connection()
+        cursor = raw_conn.cursor()
+        cursor.copy_expert(file=self.csv_file_obj, sql=sql_query)
+        raw_conn.commit()
+        return cursor.rowcount
 
 
 
@@ -62,11 +81,9 @@ if __name__ == '__main__':
     )
     table_name = 'testing'
     conn_str = 'postgresql+psycopg2://postgres:Gunnar14@localhost/test'
-    file_obj = convert_dataframe(df, index=False)
     engine = initialize_engine(conn_str)
-    create_table(engine, df, table_name)
-    rc, status = postgres_bulk_copy(engine, file_obj, table_name)
-    print(rc, status)
+    loader = DataframeLoader(df, engine, table_name, 'public', index=False)
+    loader.bulk_copy()
 
 
 
