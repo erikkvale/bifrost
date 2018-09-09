@@ -5,17 +5,6 @@ from psycopg2 import sql
 from pandas.io.sql import get_schema
 
 
-def initialize_engine(conn_str, *args, **kwargs):
-    """Create, test, and return SQLAlchemy engine"""
-    engine = create_engine(conn_str, *args, **kwargs)
-    try:
-        conn = engine.connect()
-        conn.close()
-    except Exception:
-        raise
-    return engine
-
-
 class DataframeLoader:
     """
     Converts Pandas DataFrame to in-memory
