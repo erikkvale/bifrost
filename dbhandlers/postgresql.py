@@ -2,7 +2,7 @@ from psycopg2 import sql
 from loader import initialize_engine, DataFrameLoaderMixin
 
 
-class PostgreSQLLoader(DataFrameLoaderMixin):
+class PostgresDataFrameLoader(DataFrameLoaderMixin):
 
     def __init__(self, dataframe, sqlalchemy_engine,
                  sql_table, sql_schema, **csv_kwargs):
@@ -16,7 +16,7 @@ class PostgreSQLLoader(DataFrameLoaderMixin):
 
         Note: The usage of the inherited mixins instance
         attributes and properties. Specifically the engine
-        and csv_file_object
+        and csv_file_obj
         """
         sql_query = sql.SQL("COPY {} FROM STDIN WITH CSV HEADER;").format(
             sql.Identifier(table_name)
@@ -39,8 +39,8 @@ if __name__ == '__main__':
     table_name = 'testing'
     conn_str = 'postgresql+psycopg2://postgres:Gunnar14@localhost/test'
     engine = initialize_engine(conn_str)
-    loader = PostgreSQLLoader(df, engine, 'testing', 'public', index=False)
-    print(loader)
+    loader = PostgresDataFrameLoader(df, engine, 'testing', 'public', index=False)
+    rc = loader.bulk_copy()
 
 
 
