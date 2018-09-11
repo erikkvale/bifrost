@@ -4,6 +4,8 @@ to convert and load Pandas DataFrames into SQL
 databases.
 """
 from sqlalchemy import create_engine
+from pandas.io.sql import get_schema
+import io
 
 
 def initialize_engine(conn_str, *args, **kwargs):
@@ -15,3 +17,51 @@ def initialize_engine(conn_str, *args, **kwargs):
     except Exception:
         raise
     return engine
+
+
+class DataFrameLoaderMixin:
+    """
+    Fill this docstring on completion
+    """
+    def __init__(self, dataframe, sqlalchemy_engine,
+                 sql_table, sql_schema, **csv_kwargs):
+        self.dataframe = dataframe
+        self.engine = sqlalchemy_engine
+        self.sql_schema = sql_schema
+        self.sql_table = sql_table
+        self.csv_kwargs = csv_kwargs
+
+        if not self._table_exists():
+            self._create_table()
+
+    @property
+    def csv_file_obj(self):
+        return self.convert_dataframe()
+
+    def convert_dataframe(self):
+        """Return in-memory string object"""
+        csv_buffer = io.StringIO()
+        self.dataframe.to_csv(csv_buffer, **self.csv_kwargs)
+        csv_buffer.seek(0)
+        return csv_buffer
+
+    def _table_exists(self):
+        """Inspects the database to see if the table exists"""
+        if self.engine.dialect.has_table(
+                self.engine, self.sql_table, schema=self.sql_schema):
+            return True
+        else:
+            return False
+
+    def _create_table(self):
+        """Creates the SQL table using the schema of the current DataFrame object"""
+        dataframe_schema = get_schema(self.dataframe, self.sql_table)
+        with self.engine.connect() as conn:
+            conn.execute(dataframe_schema)
+
+    def __repr__(self):
+        return "<{klass} @{id:x} {attrs}>".format(
+            klass=self.__class__.__name__,
+            id=id(self),
+            attrs="".join("{}={!r},".format(k, v) for k, v in self.__dict__.items()),
+        )
