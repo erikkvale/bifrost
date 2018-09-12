@@ -23,10 +23,24 @@ class DataFrameLoaderMixin:
     """
     Fill this docstring on completion
     """
-    def __init__(self, dataframe, sqlalchemy_engine,
-                 sql_table, sql_schema, **csv_kwargs):
+    def __init__(self, dataframe, engine, sql_table,
+                 sql_schema, **csv_kwargs):
+        """
+        Parameters
+        ----------
+        dataframe: Pandas DataFrame
+        engine: SQLAlchemy Engine
+        sql_table: str
+            The destination SQL table name
+        sql_schema: str
+            The destination SQL schema name
+        csv_kwargs: object
+            These are the arguments to be passed on to
+            the Pandas.DataFrame().to_csv() method as
+            as way 
+        """
         self.dataframe = dataframe
-        self.engine = sqlalchemy_engine
+        self.engine = engine
         self.sql_schema = sql_schema
         self.sql_table = sql_table
         self.csv_kwargs = csv_kwargs

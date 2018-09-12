@@ -4,10 +4,10 @@ from loader import initialize_engine, DataFrameLoaderMixin
 
 class PostgresDataFrameLoader(DataFrameLoaderMixin):
 
-    def __init__(self, dataframe, sqlalchemy_engine,
+    def __init__(self, dataframe, engine,
                  sql_table, sql_schema, **csv_kwargs):
-        super().__init__(dataframe, sqlalchemy_engine,
-                 sql_table, sql_schema, **csv_kwargs)
+        super().__init__(dataframe, engine,
+                         sql_table, sql_schema, **csv_kwargs)
 
     def bulk_copy(self):
         """
