@@ -32,8 +32,8 @@ if __name__ == '__main__':
     import pandas
     df = pandas.DataFrame(
         data={
-            'col_a': [1, 2, 3, 4, 5],
-            'col_b': [6, 7, 8, 9, 10]
+            'col_a': [x for x in range(1, 10000000)],
+            'col_b': [x for x in range(1, 10000000)]
         }
     )
     table_name = 'testing'
@@ -41,6 +41,7 @@ if __name__ == '__main__':
     engine = initialize_engine(conn_str)
     loader = PostgresDataFrameLoader(df, engine, 'testing', 'public', index=False)
     rc = loader.bulk_copy()
+    print(rc)
 
 
 

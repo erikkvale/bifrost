@@ -36,8 +36,9 @@ class DataFrameLoaderMixin:
             The destination SQL schema name
         csv_kwargs: object
             These are the arguments to be passed on to
-            the Pandas.DataFrame().to_csv() method as
-            as way 
+            the Pandas.DataFrame().to_csv() method. Most
+            common here is to set index=False, to prevent
+            the Pandas index from being written to file.
         """
         self.dataframe = dataframe
         self.engine = engine
