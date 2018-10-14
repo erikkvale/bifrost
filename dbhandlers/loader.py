@@ -1,8 +1,3 @@
-"""
-A module containing some basic functionality
-to convert and load Pandas DataFrames into SQL
-databases.
-"""
 from sqlalchemy import create_engine
 from pandas.io.sql import get_schema
 import io
@@ -21,7 +16,19 @@ def initialize_engine(conn_str, *args, **kwargs):
 
 class DataFrameLoaderMixin:
     """
-    Fill this docstring on completion
+    This mixin bundles some functionality to facilitate
+    extension methods to load an in-memory CSV file into
+     a SQL database.
+
+    Many SQL databases, PostgreSQL, MS SQL Server, etc.
+    have some kind of optimized function to load text files
+    like a CSV into a database table very efficiently. One
+    of the issues encountered when working on large dataframes
+    was the to_sql() method was very slow on the inserts, there
+    are and have been hacks to get around this in the actual code,
+    but even then it has been noticed that the underlying SQL
+    database engine is still faster than any Python, client side
+    optmizations.
     """
     def __init__(self, dataframe, engine, sql_table,
                  sql_schema, **csv_kwargs):
